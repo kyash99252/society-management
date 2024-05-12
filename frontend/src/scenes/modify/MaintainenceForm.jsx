@@ -18,7 +18,7 @@ const MaintenanceForm = () => {
   return (
     <Box m="20px">
       <Header
-        title="MAINTENANCE"
+        title="Maintainence"
         subtitle="Manage Maintenance for a Resident"
       />
 

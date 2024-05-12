@@ -3,12 +3,26 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import axios from "axios";
 
 const ComplaintsForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const handleFormSubmit = (values) => {
-    console.log(values);
+  const handleFormSubmit = async (values) => {
+    try {
+      const response = await axios.post("http://localhost:3000/complaints", {
+        ResidentID: values.residentID,
+        Description: values.description,
+        DateReported: values.dateReported,
+        Status: "Pending",
+      });
+
+      if (response.data.message) {
+        console.log(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error adding data:", error);
+    }
   };
 
   return (

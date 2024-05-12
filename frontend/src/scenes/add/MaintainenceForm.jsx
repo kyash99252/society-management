@@ -3,18 +3,32 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import axios from "axios";
 
 const MaintenanceForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const handleFormSubmit = (values) => {
-    console.log(values);
+  const handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      const response = await axios.post("http://localhost:3000/maintenence", {
+        ResidentID: values.residentID,
+        Amount: values.amount,
+        DueDate: values.dueDate,
+        Status: "Pending",
+      });
+      console.log(response.data);
+      resetForm();
+      setSubmitting(false);
+    } catch (error) {
+      console.error("Error adding data:", error);
+    }
   };
+
 
   return (
     <Box m="20px">
       <Header
-        title="MAINTENANCE"
+        title="Maintainence"
         subtitle="Manage Maintenance for a Resident"
       />
 
