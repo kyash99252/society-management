@@ -1,14 +1,26 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, Select, MenuItem } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import axios from "axios";
 
 const FinesForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const handleFormSubmit = (values) => {
-    console.log(values);
+  const handleFormSubmit = async (values) => {
+    try {
+      const response = await axios.put(`http://localhost:3000/fines/${values.fineID}`, {
+        ResidentID: values.residentID,
+        Reason: values.reason,
+        Date: values.date,
+        Status: values.status,
+        Amount: values.amount,
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error updating fine:", error);
+    }
   };
 
   return (
@@ -37,6 +49,19 @@ const FinesForm = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Fine ID"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.fineID}
+                name="fineID"
+                error={!!touched.fineID && !!errors.fineID}
+                helperText={touched.fineID && errors.fineID}
+                sx={{ gridColumn: "span 2" }}
+              />
               <TextField
                 fullWidth
                 variant="filled"
@@ -76,6 +101,21 @@ const FinesForm = () => {
                 helperText={touched.date && errors.date}
                 sx={{ gridColumn: "span 2" }}
               />
+              <Select
+                fullWidth
+                variant="filled"
+                label="Status"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.status}
+                name="status"
+                error={!!touched.status && !!errors.status}
+                helperText={touched.status && errors.status}
+                sx={{ gridColumn: "span 2" }}
+              >
+                <MenuItem value="Pending Payment">Pending Payment</MenuItem>
+                <MenuItem value="Paid">Paid</MenuItem>
+              </Select>
               <TextField
                 fullWidth
                 variant="filled"
@@ -103,16 +143,20 @@ const FinesForm = () => {
 };
 
 const checkoutSchema = yup.object().shape({
-  residentID: yup.string().required("required"),
-  reason: yup.string().required("required"),
-  date: yup.date().required("required"),
-  amount: yup.number().required("required"),
+  fineID: yup.string().required("required"),
+  residentID: yup.string(),
+  reason: yup.string(),
+  date: yup.date(),
+  status: yup.string(),
+  amount: yup.number(),
 });
 
 const initialValues = {
+  fineID: "",
   residentID: "",
   reason: "",
   date: "",
+  status: "",
   amount: "",
 };
 

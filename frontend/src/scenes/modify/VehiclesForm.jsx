@@ -3,12 +3,24 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import axios from "axios";
 
 const VehiclesForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const handleFormSubmit = (values) => {
-    console.log(values);
+  const handleFormSubmit = async (values) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:3000/vehicles/${values.registrationNumber}`,
+        {
+          ResidentID: values.residentId,
+          Type: values.vehicleType,
+        }
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error updating vehicle:", error);
+    }
   };
 
   return (
@@ -96,7 +108,7 @@ const VehiclesForm = () => {
 };
 
 const checkoutSchema = yup.object().shape({
-  residentId: yup.string().required("required"),
+  residentId: yup.string(),
   registrationNumber: yup.string().required("required"),
   vehicleType: yup.string().required("required"),
 });

@@ -1,27 +1,34 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, Select, MenuItem } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import axios from "axios"; // Import axios for API calls
 
 const ComplaintsForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const handleFormSubmit = (values) => {
-    console.log(values);
+  const handleFormSubmit = async (values) => {
+    try {
+      // Make API call to update individual complaint record
+      await axios.put(
+        `http://localhost:3000/complaints/${values.complaintID}`,
+        values
+      );
+      console.log("Complaint record updated successfully");
+    } catch (error) {
+      console.error("Error updating complaint record:", error);
+    }
   };
 
   return (
     <Box m="20px">
-      <Header
-        title="Complaints"
-        subtitle="Update Complaint Details"
-      />
+      <Header title="Complaints" subtitle="Manage Complaints for a Resident" />
 
       <Formik
         onSubmit={handleFormSubmit}
-        initialValues={initialValues}
-        validationSchema={checkoutSchema}
+        initialValues={individualUpdateInitialValues}
+        validationSchema={individualUpdateSchema}
       >
         {({
           values,
@@ -40,6 +47,19 @@ const ComplaintsForm = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Complaint ID"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.complaintID}
+                name="complaintID"
+                error={!!touched.complaintID && !!errors.complaintID}
+                helperText={touched.complaintID && errors.complaintID}
+                sx={{ gridColumn: "span 2" }}
+              />
               <TextField
                 fullWidth
                 variant="filled"
@@ -79,10 +99,26 @@ const ComplaintsForm = () => {
                 helperText={touched.dateReported && errors.dateReported}
                 sx={{ gridColumn: "span 2" }}
               />
+              <Select
+                fullWidth
+                variant="filled"
+                label="Status"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.status}
+                name="status"
+                error={!!touched.status && !!errors.status}
+                helperText={touched.status && errors.status}
+                sx={{ gridColumn: "span 2" }}
+              >
+                <MenuItem value="Pending">Pending</MenuItem>
+                <MenuItem value="Resolved">Resolved</MenuItem>
+                <MenuItem value="In Progress">In Progress</MenuItem>
+              </Select>
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Report Complaint
+                Submit Complaint
               </Button>
             </Box>
           </form>
@@ -92,16 +128,20 @@ const ComplaintsForm = () => {
   );
 };
 
-const checkoutSchema = yup.object().shape({
-  residentID: yup.string().required("required"),
-  description: yup.string().required("required"),
-  dateReported: yup.date().required("required"),
+const individualUpdateSchema = yup.object().shape({
+  complaintID: yup.string().required("Complaint ID is required"),
+  residentID: yup.string(),
+  description: yup.string(),
+  dateReported: yup.date(),
+  status: yup.string(),
 });
 
-const initialValues = {
+const individualUpdateInitialValues = {
+  complaintID: "",
   residentID: "",
   description: "",
   dateReported: "",
+  status: "",
 };
 
 export default ComplaintsForm;

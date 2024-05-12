@@ -3,12 +3,22 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import axios from "axios"; // Import axios for API calls
 
 const ResidentsForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const handleFormSubmit = (values) => {
-    console.log(values);
+  const handleFormSubmit = async (values) => {
+    try {
+      // Make API call to update individual resident record
+      await axios.put(
+        `http://localhost:3000/data/${values.residentID}`,
+        values
+      );
+      console.log("Resident record updated successfully");
+    } catch (error) {
+      console.error("Error updating resident record:", error);
+    }
   };
 
   return (
@@ -37,6 +47,19 @@ const ResidentsForm = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Resident ID"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.residentID}
+                name="residentID"
+                error={!!touched.residentID && !!errors.residentID}
+                helperText={touched.residentID && errors.residentID}
+                sx={{ gridColumn: "span 2" }}
+              />
               <TextField
                 fullWidth
                 variant="filled"
@@ -109,16 +132,15 @@ const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
 
 const checkoutSchema = yup.object().shape({
-  name: yup.string().required("required"),
-  flatNo: yup.string().required("required"),
-  status: yup.string().required("required"),
-  phoneNumber: yup
-    .string()
-    .matches(phoneRegExp, "Phone number is not valid")
-    .required("required"),
+  residentID: yup.string().required("Resident ID is required"),
+  name: yup.string(),
+  flatNo: yup.string(),
+  status: yup.string(),
+  phoneNumber: yup.string().matches(phoneRegExp, "Phone number is not valid"),
 });
 
 const initialValues = {
+  residentID: "",
   name: "",
   flatNo: "",
   status: "",

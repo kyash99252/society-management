@@ -1,24 +1,37 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, MenuItem } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import axios from "axios"; // Import axios for API calls
 
 const MaintenanceForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const handleFormSubmit = (values) => {
-    console.log(values);
+  const handleFormSubmit = async (values) => {
+    try {
+      // Make API call to update individual maintenance record
+      await axios.put(`http://localhost:3000/maintenence/${values.maintenanceID}`, values);
+      console.log("Maintenance record updated successfully");
+    } catch (error) {
+      console.error("Error updating maintenance record:", error);
+    }
   };
 
-  const handleMonthlyUpdateSubmit = (values) => {
-    console.log(values);
+  const handleMonthlyUpdateSubmit = async (values) => {
+    try {
+      // Make API call to update due date for all maintenance records
+      await axios.put("http://localhost:3000/maintenance/monthly", values);
+      console.log("Monthly maintenance records updated successfully");
+    } catch (error) {
+      console.error("Error updating monthly maintenance records:", error);
+    }
   };
 
   return (
     <Box m="20px">
       <Header
-        title="Maintainence"
+        title="Maintenance"
         subtitle="Manage Maintenance for a Resident"
       />
 
@@ -44,6 +57,35 @@ const MaintenanceForm = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Maintenance ID"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.maintenanceID}
+                name="maintenanceID"
+                error={!!touched.maintenanceID && !!errors.maintenanceID}
+                helperText={touched.maintenanceID && errors.maintenanceID}
+                sx={{ gridColumn: "span 2" }}
+              />
+              <TextField
+                fullWidth
+                select
+                variant="filled"
+                label="Status"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.status}
+                name="status"
+                error={!!touched.status && !!errors.status}
+                helperText={touched.status && errors.status}
+                sx={{ gridColumn: "span 2" }}
+              >
+                <MenuItem value="Paid">Paid</MenuItem>
+                <MenuItem value="Pending Payment">Pending Payment</MenuItem>
+              </TextField>
               <TextField
                 fullWidth
                 variant="filled"
@@ -147,19 +189,23 @@ const MaintenanceForm = () => {
 };
 
 const individualUpdateSchema = yup.object().shape({
-  residentID: yup.string().required("required"),
-  amount: yup.number().required("required"),
-  dueDate: yup.date().required("required"),
+  maintenanceID: yup.string().required("Maintenance ID is required"),
+  status: yup.string(),
+  residentID: yup.string(),
+  amount: yup.number(),
+  dueDate: yup.date(),
 });
 
 const individualUpdateInitialValues = {
+  maintenanceID: "",
+  status: "",
   residentID: "",
   amount: "",
   dueDate: "",
 };
 
 const monthlyUpdateSchema = yup.object().shape({
-  dueDate: yup.date().required("required"),
+  dueDate: yup.date().required("Due Date is required"),
 });
 
 const monthlyUpdateInitialValues = {
