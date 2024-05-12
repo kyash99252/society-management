@@ -10,6 +10,8 @@ import Maintenance from "./scenes/maintainence";
 import Complaints from "./scenes/complaints";
 import Fines from './scenes/fines'
 import Vehicles from './scenes/vehicles'
+import Add from './scenes/add'
+import Update from './scenes/modify'
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -33,6 +35,8 @@ function App() {
               <Route path="/complaints" element={<Complaints />} />
               <Route path="/fines" element={<Fines />} />
               <Route path="/vehicles" element={<Vehicles />} />
+              <Route path="/add" element={<Add />} />
+              <Route path="/update" element={<Update />} />
             </Routes>
           </main>
         </div>

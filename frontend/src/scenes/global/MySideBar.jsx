@@ -10,6 +10,8 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import DangerousOutlinedIcon from "@mui/icons-material/DangerousOutlined";
 import CurrencyRupeeOutlinedIcon from "@mui/icons-material/CurrencyRupeeOutlined";
 import DirectionsCarFilledOutlinedIcon from "@mui/icons-material/DirectionsCarFilledOutlined";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import UpdateOutlinedIcon from "@mui/icons-material/UpdateOutlined";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -154,6 +156,27 @@ const MySideBar = () => {
               title="Vehicles"
               to="/vehicles"
               icon={<DirectionsCarFilledOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Typography
+              variant="h6"
+              color={colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              Data Manipulation
+            </Typography>
+            <Item
+              title="Add"
+              to="/add"
+              icon={<AddOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Update"
+              to="/update"
+              icon={<UpdateOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
