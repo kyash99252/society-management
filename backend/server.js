@@ -32,6 +32,22 @@ app.get("/data", async (req, res) => {
   }
 });
 
+app.get("/data/:flatNo", async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows, fields] = await connection.execute(
+      "SELECT * FROM resident WHERE FlatNo = ?",
+      [req.params.flatNo]
+    );
+    await connection.end();
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Error fetching data" });
+  }
+});
+
+
 // Route to fetch complaints from the database
 app.get("/complaints", async (req, res) => {
   try {
@@ -45,6 +61,36 @@ app.get("/complaints", async (req, res) => {
   }
 });
 
+app.get("/complaints/:flatNo", async (req, res) => {
+  const flatNo = req.params.flatNo;
+
+  try {
+    // Create a database connection
+    const connection = await mysql.createConnection(dbConfig);
+
+    // Query to fetch complaints for the specified flat number
+    const sql = `
+      SELECT c.* 
+      FROM complaint c
+      INNER JOIN resident r ON c.ResidentID = r.ResidentID
+      WHERE r.FlatNo = ?
+    `;
+
+    // Execute the query with the provided flat number
+    const [rows, fields] = await connection.execute(sql, [flatNo]);
+
+    // Close the database connection
+    await connection.end();
+
+    // Send the complaints data as response
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching complaints:", error);
+    res.status(500).json({ error: "Error fetching complaints" });
+  }
+});
+
+
 // Route to fetch fine from the database
 app.get("/fines", async (req, res) => {
   try {
@@ -55,6 +101,35 @@ app.get("/fines", async (req, res) => {
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Error fetching data" });
+  }
+});
+
+app.get("/fines/:flatNo", async (req, res) => {
+  const flatNo = req.params.flatNo;
+
+  try {
+    // Create a database connection
+    const connection = await mysql.createConnection(dbConfig);
+
+    // Query to fetch fines for the specified flat number
+    const sql = `
+      SELECT f.* 
+      FROM fine f
+      INNER JOIN resident r ON f.ResidentID = r.ResidentID
+      WHERE r.FlatNo = ?
+    `;
+
+    // Execute the query with the provided flat number
+    const [rows, fields] = await connection.execute(sql, [flatNo]);
+
+    // Close the database connection
+    await connection.end();
+
+    // Send the fines data as response
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching fines:", error);
+    res.status(500).json({ error: "Error fetching fines" });
   }
 });
 
@@ -216,6 +291,37 @@ app.post("/maintenence", async (req, res) => {
     res.status(500).json({ error: "Error adding data" });
   }
 });
+
+// Route to fetch maintenance data by FlatNo
+app.get("/maintenance/:flatNo", async (req, res) => {
+  const flatNo = req.params.flatNo;
+
+  try {
+    // Create a database connection
+    const connection = await mysql.createConnection(dbConfig);
+
+    // Query to fetch maintenance data for the specified FlatNo
+    const sql = `
+      SELECT m.* 
+      FROM maintainence m
+      INNER JOIN resident r ON m.ResidentID = r.ResidentID
+      WHERE r.FlatNo = ?
+    `;
+
+    // Execute the query with the provided FlatNo
+    const [rows, fields] = await connection.execute(sql, [flatNo]);
+
+    // Close the database connection
+    await connection.end();
+
+    // Send the maintenance data as response
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching maintenance data:", error);
+    res.status(500).json({ error: "Error fetching maintenance data" });
+  }
+});
+
 
 // Route to update a maintenance record
 app.put("/maintenence/:MaintainenceID", async (req, res) => {

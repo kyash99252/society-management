@@ -24,6 +24,8 @@
     "@nivo/pie": "^0.86.0",
     "axios": "^1.6.8",
     "formik": "^2.4.6",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-pro-sidebar": "^1.1.0",

@@ -13,11 +13,13 @@ import MaintainenceForm from "./MaintainenceForm"; // Import the MaintainenceFor
 import ComplaintsForm from "./ComplaintsForm"; // Import the ComplaintsForm component
 import FinesForm from "./FinesForm"; // Import the FinesForm component
 import VehiclesForm from "./VehiclesForm"; // Import the VehiclesForm component
+import { useUser } from "../../useUser"; // Import useUser hook
 
 const Add = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [selectedOption, setSelectedOption] = useState("Select Table");
+  const userContext = useUser(); // Use the useUser hook to access user context
 
   const handleChange = (event) => {
     setSelectedOption(event.target.value);
@@ -40,11 +42,24 @@ const Add = () => {
           onChange={handleChange}
           label="Options"
         >
-          <MenuItem value={"Residents"}>Residents</MenuItem>
-          <MenuItem value={"Maintainence"}>Maintainence</MenuItem>
-          <MenuItem value={"Complaints"}>Complaints</MenuItem>
-          <MenuItem value={"Fines"}>Fines</MenuItem>
-          <MenuItem value={"Vehicles"}>Vehicles</MenuItem>
+          {userContext.userData.userType === "admin" && (
+            <MenuItem value={"Residents"}>Residents</MenuItem>
+          )}
+          {userContext.userData.userType === "admin" && (
+            <MenuItem value={"Maintainence"}>Maintenance</MenuItem>
+          )}
+          {userContext.userData.userType === "admin" && (
+            <MenuItem value={"Complaints"}>Complaints</MenuItem>
+          )}
+          {userContext.userData.userType === "admin" && (
+            <MenuItem value={"Fines"}>Fines</MenuItem>
+          )}
+          {userContext.userData.userType === "admin" && (
+            <MenuItem value={"Vehicles"}>Vehicles</MenuItem>
+          )}
+          {userContext.userData.userType !== "admin" && (
+            <MenuItem value={"Complaints"}>Complaints</MenuItem>
+          )}
         </Select>
       </FormControl>
       {selectedOption === "Residents" && <ResidentsForm />}

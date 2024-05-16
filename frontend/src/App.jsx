@@ -24,7 +24,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<LoginPage />} />
           <Route
             path="/*"
             element={
@@ -45,7 +45,6 @@ function App() {
                     <Route path="/vehicles" element={<Vehicles />} />
                     <Route path="/add" element={<Add />} />
                     <Route path="/update" element={<Update />} />
-                    <Route path="/" element={<Dashboard />} />
                     <Route path="/user_dash" element={<UserDashboard/>}/>
                   </Routes>
                 </main>

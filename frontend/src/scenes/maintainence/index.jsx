@@ -1,26 +1,45 @@
 import { useState, useEffect } from "react";
-import { Box, Toolbar, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import axios from "axios";
 import Header from "../../components/Header";
+import { useUser } from "../../useUser"; // Import useUser hook
 
 const Maintenance = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [residents, setResidents] = useState([]);
+  const [maintenance, setMaintenance] = useState([]);
+  const userContext = useUser(); // Use the useUser hook to access user context
 
-  // Fetch residents data from your API using axios
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/maintenence")
-      .then((response) => {
-        setResidents(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching residents data:", error);
-      });
-  }, []);
+    // Fetch maintenance data based on user role
+    if (userContext && userContext.userData) {
+      if (userContext.userData.userType === "admin") {
+        // Fetch all maintenance for admin
+        axios
+          .get("http://localhost:3000/maintenance")
+          .then((response) => {
+            setMaintenance(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching maintenance data:", error);
+          });
+      } else if (userContext.userData.userType === "user") {
+        // Fetch maintenance for the current user's flat
+        axios
+          .get(
+            `http://localhost:3000/maintenance/${userContext.userData.residentID}`
+          )
+          .then((response) => {
+            setMaintenance(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching maintenance data:", error);
+          });
+      }
+    }
+  }, [userContext]); // Fetch maintenance data whenever userContext changes
 
   const columns = [
     { field: "MaintainenceID", headerName: "Maintenance ID", flex: 1 },
@@ -51,7 +70,7 @@ const Maintenance = () => {
 
   return (
     <Box m="20px">
-      <Header title="Maintainence" />
+      <Header title="Maintenance" />
       <Box
         m="40px 0 0 0"
         height="71vh"
@@ -90,7 +109,7 @@ const Maintenance = () => {
         }}
       >
         <DataGrid
-          rows={residents}
+          rows={maintenance}
           columns={columns}
           initialState={{
             pagination: { paginationModel: { pageSize: 8 } },

@@ -4,23 +4,43 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import axios from "axios";
 import Header from "../../components/Header";
+import { useUser } from "../../useUser"; // Import useUser hook
 
 const Complaints = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [complaints, setComplaints] = useState([]);
+  const userContext = useUser(); // Use the useUser hook to access user context
 
-  // Fetch complaints data from your API using axios
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/complaints")
-      .then((response) => {
-        setComplaints(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching complaints data:", error);
-      });
-  }, []);
+    // Fetch complaints data based on user role
+    if (userContext && userContext.userData) {
+      if (userContext.userData.userType === "admin") {
+        // Fetch all complaints for admin
+        axios
+          .get("http://localhost:3000/complaints")
+          .then((response) => {
+            setComplaints(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching complaints data:", error);
+          });
+      } else if (userContext.userData.userType === "user") {
+        // Fetch complaints for the current user
+        axios
+          .get(
+            `http://localhost:3000/complaints/${userContext.userData.residentID}`
+          )
+          .then((response) => {
+            console.log(userContext.userData.residentID)
+            setComplaints(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching complaints data:", error);
+          });
+      }
+    }
+  }, [userContext]); // Fetch complaints data whenever userContext changes
 
   const columns = [
     { field: "ComplaintID", headerName: "Complaint ID", flex: 0.5 },

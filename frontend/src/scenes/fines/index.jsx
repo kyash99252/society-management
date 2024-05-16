@@ -4,23 +4,40 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import axios from "axios";
 import Header from "../../components/Header";
+import { useUser } from "../../useUser"; // Import useUser hook
 
 const Fines = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [fines, setFines] = useState([]);
+  const userContext = useUser(); // Use the useUser hook to access user context
 
-  // Fetch fines data from your API using axios
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/fines")
-      .then((response) => {
-        setFines(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching fines data:", error);
-      });
-  }, []);
+    // Fetch fines data based on user role
+    if (userContext && userContext.userData) {
+      if (userContext.userData.userType === "admin") {
+        // Fetch all fines for admin
+        axios
+          .get("http://localhost:3000/fines/")
+          .then((response) => {
+            setFines(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching all fines data:", error);
+          });
+      } else if (userContext.userData.userType === "user") {
+        // Fetch fines only for the current user
+        axios
+          .get(`http://localhost:3000/fines/${userContext.userData.residentID}`)
+          .then((response) => {
+            setFines(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching fines data:", error);
+          });
+      }
+    }
+  }, [userContext]); // Fetch fines data whenever userContext changes
 
   const columns = [
     { field: "FineID", headerName: "Fine ID", flex: 0.5 },

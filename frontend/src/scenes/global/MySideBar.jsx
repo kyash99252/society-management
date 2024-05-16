@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -40,12 +40,29 @@ const MySideBar = () => {
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
-  const userContext = useUser();
+  const userContext = useUser(); // use the hook to access the context
 
   const [userName, setUserName] = useState("");
-  const [flatNo, setFlatNo] = useState("");
+  const [subtitle, setSubtitle] = useState("");
 
-  
+  useEffect(() => {
+    if (userContext && userContext.userData) {
+      if (userContext.userData.userType === "admin") {
+        setUserName("Yash K.");
+        setSubtitle("Admin");
+      } else if (userContext.userData.userType === "user") {
+        fetch(`http://localhost:3000/data/${userContext.userData.residentID}`)
+          .then((response) => response.json())
+          .then((data) => {
+            setUserName(data[0].Name);
+            setSubtitle(data[0].FlatNo);
+          })
+          .catch((error) =>
+            console.error("Error fetching user details:", error)
+          );
+      }
+    }
+  }, [userContext]);
 
   return (
     <Box
@@ -106,24 +123,16 @@ const MySideBar = () => {
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  Yash K.
+                  {userName || "User Name"}
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
-                  Admin
+                  {subtitle || "Flat Number"}
                 </Typography>
               </Box>
             </Box>
           )}
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-            <Item
-              title="Dashboard"
-              to="/"
-              icon={<HomeOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
             <Typography
               variant="h6"
               color={colors.grey[300]}
@@ -132,12 +141,32 @@ const MySideBar = () => {
               Data
             </Typography>
             <Item
-              title="Residents"
-              to="/residents"
-              icon={<PeopleOutlinedIcon />}
+              title="Complaints"
+              to="/complaints"
+              icon={<ReceiptOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
+            {userContext &&
+              userContext.userData &&
+              userContext.userData.userType === "admin" && (
+                <>
+                  <Item
+                    title="Residents"
+                    to="/residents"
+                    icon={<PeopleOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item
+                    title="Vehicles"
+                    to="/vehicles"
+                    icon={<DirectionsCarFilledOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                </>
+              )}
             <Item
               title="Maintainence"
               to="/maintainence"
@@ -146,23 +175,9 @@ const MySideBar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Complaints"
-              to="/complaints"
-              icon={<ReceiptOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
               title="Fines"
               to="/fines"
               icon={<DangerousOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Vehicles"
-              to="/vehicles"
-              icon={<DirectionsCarFilledOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
