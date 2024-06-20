@@ -13,7 +13,7 @@ app.use(cors());
 const dbConfig = {
   host: "127.0.0.1",
   user: "root",
-  password: "yash1986",
+  password: "root",
   database: "dbms_project",
 };
 

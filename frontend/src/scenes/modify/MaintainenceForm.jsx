@@ -6,30 +6,67 @@ import Header from "../../components/Header";
 import axios from "axios"; // Import axios for API calls
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas"; // Import jsPDF for PDF generation
+import { useUser } from "../../useUser";
 
 const MaintenanceForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const userContext = useUser();
 
   // Function to download receipt as a PDF
-  const downloadReceipt = (receipt) => {
-    // Generate HTML for receipt
+  const downloadReceipt = async (receipt) => {
+    // Generate HTML for receipt with black font color
     const receiptHtml = `
-      <div>
-        <h1>Receipt</h1>
-        <p><strong>Name:</strong> ${receipt.Name}</p>
-        <p><strong>Flat No:</strong> ${receipt.FlatNo}</p>
-        <p><strong>Amount:</strong> ${receipt.Amount}</p>
-        <p><strong>Date:</strong> ${receipt.Date}</p>
-        <p><strong>Time:</strong> ${receipt.Time}</p>
-        <p><strong>Maintenance ID:</strong> ${receipt.MaintenanceID}</p>
-      </div>
-    `;
+    <style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f8f8f8;
+        font-family: Arial, sans-serif;
+    }
+    .receipt {
+        color: black;
+        max-width: 1000px;
+        padding: 50px;
+        width: 500px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .receipt h1 {
+        text-align: center;
+        color: #333;
+    }
+    .receipt p {
+        font-size: 16px;
+        color: #666;
+    }
+    .receipt p strong {
+        color: #333;
+    }
+</style>
+
+<div class="receipt">
+    <h1>Receipt</h1>
+    <p><strong>Name:</strong> ${receipt.Name}</p>
+    <p><strong>Flat No:</strong> ${receipt.FlatNo}</p>
+    <p><strong>Amount:</strong> ${receipt.Amount}</p>
+    <p><strong>Date:</strong> ${receipt.Date}</p>
+    <p><strong>Time:</strong> ${receipt.Time}</p>
+    <p><strong>Maintenance ID:</strong> ${receipt.MaintenanceID}</p>
+</div>
+  `;
 
     // Create a div element with receipt HTML content
     const receiptDiv = document.createElement("div");
     receiptDiv.innerHTML = receiptHtml;
 
-    // Use html2canvas to convert HTML content to canvas
+    // Append the div to the document body
+    document.body.appendChild(receiptDiv);
+
+    // Use html2canvas to convert the receiptDiv to canvas
     html2canvas(receiptDiv).then((canvas) => {
       // Convert canvas to image data URL
       const imgData = canvas.toDataURL("image/png");
@@ -38,10 +75,13 @@ const MaintenanceForm = () => {
       const pdf = new jsPDF();
 
       // Add image data URL to PDF document
-      pdf.addImage(imgData, "PNG", 10, 10);
+      pdf.addImage(imgData, "PNG", 25, 15);
 
       // Save PDF file
       pdf.save("receipt.pdf");
+
+      // Remove the div from the document body
+      document.body.removeChild(receiptDiv);
     });
   };
 
@@ -64,11 +104,12 @@ const MaintenanceForm = () => {
           `http://localhost:3000/maintenance/${userContext.userData.residentID}`
         );
 
+        console.log(residentDetails.data[0]);
         // Prepare receipt data
         const receipt = {
-          Name: residentDetails.data.Name,
-          FlatNo: values.flatNo,
-          Amount: maintenanceDetails.data.Amount,
+          Name: residentDetails.data[0].Name,
+          FlatNo: userContext.userData.residentID,
+          Amount: maintenanceDetails.data[0].Amount,
           Date: new Date().toLocaleDateString(),
           Time: new Date().toLocaleTimeString(),
           MaintenanceID: values.maintenanceID,

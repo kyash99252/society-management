@@ -4,7 +4,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import axios from "axios";
 import Header from "../../components/Header";
-import { useUser } from "../../useUser"; // Import useUser hook
+import { useUser } from "../../useUser";
 
 const Maintenance = () => {
   const theme = useTheme();
@@ -18,12 +18,13 @@ const Maintenance = () => {
       if (userContext.userData.userType === "admin") {
         // Fetch all maintenance for admin
         axios
-          .get("http://localhost:3000/maintenance")
+          .get("http://localhost:3000/maintenence")
           .then((response) => {
             setMaintenance(response.data);
           })
           .catch((error) => {
             console.error("Error fetching maintenance data:", error);
+            console.log(error.data);
           });
       } else if (userContext.userData.userType === "user") {
         // Fetch maintenance for the current user's flat
